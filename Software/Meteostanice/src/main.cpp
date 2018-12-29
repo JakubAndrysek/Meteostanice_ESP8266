@@ -6,16 +6,8 @@
 //https://github.com/JakubAndrysek/Meteostanice_ESP8266
 ///////////////////////////////////////////////////////////////////////////
 
-
-
-
-
-//#include <Arduino.h>
-
-
-
 // připojení knihoven
-#include "Voids.cpp"
+#include "Void.cpp"
 #include <Arduino.h>
 #include <SPI.h> //Seriova linka
 #include <Wire.h>
@@ -81,6 +73,15 @@ enum tZobrazeni
 
 tZobrazeni zobrazeni = HOME;
 
+
+enum tStav
+{
+  VZHURU,
+  SPIM
+};
+
+tStav stav = VZHURU;
+
 void setup () 
 {
   //SERIAL/////////////
@@ -121,8 +122,7 @@ void setup ()
   u8g2.begin();
   /*
   u8g2.clearBuffer(); //Smaze displej
-  u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
-  u8g2.drawStr(0,10,"Meteostanice");  //Vypise na displej
+  u8g2.drawRFrame(0,0,64,48,5);
   u8g2.setFont(u8g2_font_profont12_mf );	// Nastavi 
   u8g2.drawStr(10,23,"OD KUBY"); //Vypise na displej
   u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
@@ -133,212 +133,44 @@ void setup ()
   delay(2000);
 }
  
-void rastr ()
-{
-  u8g2.drawRFrame(0,0,64,48,5);
-  u8g2.drawRFrame(12,0,40,14,3);
-}
+
 
 
 void loop ()
 {
-  u8g2.clearBuffer();	//Smaze displej
-  u8g2.setFont(u8g2_font_profont11_mf);	//Nastavi font
-    
+   ///////////////////////////
+  //Kontrola VZHURU / SPIM///
+  ///////////////////////////
+  
+  
+  switch (stav)
+  {
+    case VZHURU:
+      wake();
+    case SPIM:
+      sleep();
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  
   
-  rastr();
-
-  u8g2.sendBuffer(); //Zobrazi displej
-  delay(500);
-  /*
-  DateTime datumCas = DS1307.now(); //Nacteni casu
-
-  //Nastaveni promenych hodnotami z teplomeru
-  vyska_raw=bmp.readAltitude();
-  teplota_raw=bmp.readTemperature();
-  tlak_raw=bmp.readPressure();
-
-  //Kalibrace//////////////
-  vyska = vyska_raw + 120;
-  teplota = teplota_raw - 4;
-  tlak = (tlak_raw/100) + 50;
-
   
-  //Vyska//////////////////
-  if(!DB)
-  {
-    Serial.print("Vyska ");
-    Serial.println(vyska);
-  }
+  
+  
  
-  if (vyska>vyska_max)
-  {
-    vyska_max=vyska;
-    if(DB)
-    {  
-      Serial.print("V-Max ");
-      Serial.println(vyska_max);
-    }
-  }
-  else if (vyska<vyska_min)
-  {
-    vyska_min=vyska;
-    if(DB)
-    {  
-      Serial.print("V-Min ");
-      Serial.println(vyska_min);
-    }
-  }
-
-
-  //Teplota/////////////////
-  if(DB)
-  {
-    Serial.print("Teplota ");
-    Serial.println(teplota);  
-  }
-  if (vyska>teplota_max)
-  {
-    teplota_max=teplota;
-    if(DB)
-    {
-      Serial.print("T-Max ");
-      Serial.println(teplota_max);
-    }
-  }
-  else if (teplota<teplota_min)
-  {
-    teplota_min=teplota;
-    if(DB)
-    {
-      Serial.print("T-Min ");
-      Serial.println(teplota_min);
-    }  
-  }
-  
-  
-  //Tlak//////////////////
-  if(DB)
-  {
-    Serial.print("Tlak ");
-    Serial.println(tlak);  
-  }
-  if (tlak>tlak_max)
-  {
-    tlak_max=tlak;
-    if(DB)
-    {
-      Serial.print("P-Max ");
-      Serial.println(tlak_max);
-    }
-  }
-  else if (tlak<tlak_min)
-  {
-    tlak_min=tlak;
-    if(DB)
-    {
-      Serial.print("P-Min ");
-      Serial.println(tlak_min);
-    }
-  }
-
-  //Nachozene metry nahory
-  if ((vyska+2)>vyska_last)
-  {
-    vyska_up_all+=(vyska-vyska_last);
-    vyska_last=vyska;
-    
-  }
-  if(DB)
-  {
-    Serial.print("Nahoru");
-    Serial.println(vyska_up_all);
-  }
-  
-
-  //Nachozene metry dolu
-  if ((vyska-2)<vyska_last)
-  {
-    vyska_down_all+=(vyska_last-vyska);
-    vyska_last=vyska;
-    
-  }
-  if(DB)
-  {
-    Serial.print("Dolu");
-    Serial.println(vyska_down_all);
-  }
-  
-  
-  
-  
-  //Leve tlacitko zmacknuto////////////////
-  BTleft_state = digitalRead(BTleft_pin);
-  if (BTleft_state != BTleft_last_state) 
-  {
-    if (BTleft_state == HIGH) 
-    {
-      switch(zobrazeni)
-      {
-        case HOME:
-          zobrazeni=CAS;
-          break;
-          
-        case VYSKA:
-          zobrazeni=HOME;
-          break;
-
-        case TEPLOTA:
-          zobrazeni=VYSKA;
-          break;
-          
-        case TLAK:
-          zobrazeni=TEPLOTA;
-          break;
-          
-        case CAS:
-          zobrazeni=TLAK;
-          break;
-      }
-    } 
-  }  
-  BTleft_last_state = BTleft_state;
-
-
-
-  //Prave tlacitko zmacknuto/////////////////
-  BTright_state = digitalRead(BTright_pin);
-  if (BTright_state != BTright_last_state) 
-  {
-    if (BTright_state == HIGH) 
-    {
-      switch(zobrazeni)
-      {
-        case HOME:
-          zobrazeni=VYSKA;
-          break;
-          
-        case VYSKA:
-          zobrazeni=TEPLOTA;
-          break;
-
-        case TEPLOTA:
-          zobrazeni=TLAK;
-          break;
-          
-        case TLAK:
-          zobrazeni=CAS;
-          break;
-          
-        case CAS:
-          zobrazeni=HOME;
-          break;
-      }
-    } 
-  }  
-  BTright_last_state = BTright_state;
-
   
   
   
@@ -375,7 +207,10 @@ void loop ()
       break;
 
      case TEPLOTA:
-      u8g2.setCursor(0, 11);  // (x,y) 
+      u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
+      u8g2.drawStr(14,10,"Teplota");  //Vypise na displej  
+
+      u8g2.setCursor(0, 20);  // (x,y) 
       u8g2.print("Tepl:"); 
       u8g2.print(teplota);
       

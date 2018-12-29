@@ -6,6 +6,14 @@
 //https://github.com/JakubAndrysek/Meteostanice_ESP8266
 ///////////////////////////////////////////////////////////////////////////
 
+
+
+
+
+//#include <Arduino.h>
+
+
+
 // připojení knihoven
 #include <Arduino.h>
 #include <SPI.h> //Seriova linka
@@ -25,8 +33,8 @@ File myFile; //instance SD karty
 Adafruit_BMP085 bmp; //instance teplomeru
 
 //Promene/////////////
-const int BTright = D3;
-const int BTleft = D4;
+const int  BTleft_pin = D3;    
+const int  BTright_pin = D4;
 
 
 int vyska = 555;
@@ -46,6 +54,14 @@ int tlak_max = 100;
 int tlak_min  = 10000;
 int tlak_last = 0;
 
+int BTleft_counter = 0;   // counter for the number of button presses
+int BTleft_state = 0;         // current state of the button
+int BTleft_last_state = 0;     // previous state of the button
+
+int BTright_counter = 0;   // counter for the number of button presses
+int BTright_state = 0;         // current state of the button
+int BTright_last_state = 0;     // previous state of the button
+
 
 
 bool DB = false;
@@ -58,7 +74,9 @@ enum tZobrazeni
   TEPLOTA,
   TLAK,
   CAS
-}zobrazeni=HOME;
+};
+
+tZobrazeni zobrazeni = HOME;
 
 void setup () 
 {
@@ -67,8 +85,8 @@ void setup ()
   Serial.println("Serial-Run");
 
   //Button///////////
-  pinMode(BTright, INPUT);
-  pinMode(BTleft, INPUT);
+  pinMode(BTleft_pin, INPUT);
+  pinMode(BTright_pin, INPUT);
 
   
   //RTC///////////////
@@ -109,6 +127,8 @@ void setup ()
   
   delay(500);
 }
+
+
 
 void loop ()
 {
@@ -225,59 +245,83 @@ void loop ()
   }
 
   
-  Serial.println(zobrazeni);
-  if (digitalRead(BTleft)==HIGH)
+  
+  
+  
+  //Leve tlacitko zmacknuto////////////////
+  BTleft_state = digitalRead(BTleft_pin);
+  if (BTleft_state != BTleft_last_state) 
   {
-    Serial.println("left");
-    switch(zobrazeni)
+    if (BTleft_state == HIGH) 
     {
-      case HOME:
-        zobrazeni=CAS;
-        break;
-        
-      case VYSKA:
-        zobrazeni=HOME;
-        break;
+      // Zde se projevi zmena
+      BTleft_counter++;
+      Serial.print("Left");
+      Serial.println(BTleft_counter);
+      switch(zobrazeni)
+      {
+        case HOME:
+          zobrazeni=CAS;
+          break;
+          
+        case VYSKA:
+          zobrazeni=HOME;
+          break;
 
-      case TEPLOTA:
-        zobrazeni=VYSKA;
-        break;
-        
-      case TLAK:
-        zobrazeni=TEPLOTA;
-        break;
-        
-      case CAS:
-        zobrazeni=TLAK;
-        break;
-    }
-  }
-  else if (digitalRead(BTright)==HIGH)
+        case TEPLOTA:
+          zobrazeni=VYSKA;
+          break;
+          
+        case TLAK:
+          zobrazeni=TEPLOTA;
+          break;
+          
+        case CAS:
+          zobrazeni=TLAK;
+          break;
+      }
+    } 
+  }  
+  BTleft_last_state = BTleft_state;
+
+
+
+  //Prave tlacitko zmacknuto/////////////////
+  BTright_state = digitalRead(BTright_pin);
+  if (BTright_state != BTright_last_state) 
   {
-    Serial.println("right");   
-    switch(zobrazeni)
+    if (BTright_state == HIGH) 
     {
-      case HOME:
-        zobrazeni=VYSKA;
-        break;
+      // Zde se projevi zmena
+      BTright_counter++;
+      Serial.print("Right");
+      Serial.println(BTright_counter);
+      switch(zobrazeni)
+      {
+        case HOME:
+          zobrazeni=VYSKA;
+          break;
+          
+        case VYSKA:
+          zobrazeni=TEPLOTA;
+          break;
 
-      case VYSKA:
-        zobrazeni=TEPLOTA;
-        break;
+        case TEPLOTA:
+          zobrazeni=TLAK;
+          break;
+          
+        case TLAK:
+          zobrazeni=CAS;
+          break;
+          
+        case CAS:
+          zobrazeni=HOME;
+          break;
+      }
+    } 
+  }  
+  BTright_last_state = BTright_state;
 
-      case TEPLOTA:
-        zobrazeni=TLAK;
-        break;
-        
-      case TLAK:
-        zobrazeni=CAS;
-        break;
-        
-      case CAS:
-        zobrazeni=HOME;
-        break;
-    }
-  }
   
   
   
@@ -359,5 +403,5 @@ void loop ()
 
 
 
-  delay(3000);
+  //delay(3000);
 }

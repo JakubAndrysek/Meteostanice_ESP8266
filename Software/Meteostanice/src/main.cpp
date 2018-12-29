@@ -23,9 +23,9 @@
 #include <Adafruit_GFX.h> //Fonty textu
 #include <RTClib.h> //RTC-hodiny
 //OLED
-#include <Adafruit_SSD1306.h> 
-#define OLED_RESET 0  // GPIO0
-Adafruit_SSD1306 display(OLED_RESET);
+#include <U8g2lib.h>
+U8G2_SSD1306_64X48_ER_F_HW_I2C u8g2(U8G2_R0, /* reset=*/ U8X8_PIN_NONE);
+
 
 
 RTC_DS1307 DS1307; // instance RTC
@@ -114,28 +114,25 @@ void setup ()
   vyska_last=bmp.readAltitude();
 
 
-  //OLED//////////////////
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 64x48)
-    
-  display.clearDisplay(); //Smaze displej
-  display.setTextSize(1); //Nastavi velikost pisma
-  display.setTextColor(WHITE);
-  display.setCursor(32, 8);  // (x,y)
+  //OLED/////////////////////
+  u8g2.begin();
   
-  display.print("OLED-Run"); 
-  display.display();
+  u8g2.clearBuffer();					// clear the internal memory
+  u8g2.setFont(u8g2_font_crox2cb_tf );	// choose a suitable font
+  u8g2.drawStr(0,10,"Meteostanice!");	// write something to the internal memory
+  u8g2.sendBuffer();					// transfer internal memory to the display
+
   
-  delay(500);
+  delay(2000);
 }
 
 
 
 void loop ()
 {
-  display.clearDisplay(); //vycisteni displeje
-  display.setTextSize(1); //Nastaveni fontu
-  display.setTextColor(WHITE); //Barva textu
-  
+  u8g2.clearBuffer();	//Smaze displej
+  u8g2.setFont(u8g2_font_ncenB08_tr);	//Nastavi font
+    
   DateTime datumCas = DS1307.now(); //Nacteni casu
 
   vyska=bmp.readAltitude();
@@ -329,21 +326,21 @@ void loop ()
   {
     case HOME:
       //Vypis casu
-      display.setCursor(32, 8);  // (x,y)  
-      display.print(datumCas.hour());
-      display.print(':');
-      display.print(datumCas.minute());
-      display.print(':');
-      display.print(datumCas.second());
+      u8g2.setCursor(0, 12); 
+      u8g2.print(datumCas.hour());
+      u8g2.print(':');
+      u8g2.print(datumCas.minute());
+      u8g2.print(':');
+      u8g2.print(datumCas.second());
     
       //Vypis teploty a vysky
-      display.setCursor(32, 16);  // (x,y)
-      display.print("T:"); 
-      display.print(teplota);
+      u8g2.setCursor(0, 25);  // (x,y)
+      u8g2.print("T:"); 
+      u8g2.print(teplota);
     
-      display.print(" V:"); 
-      display.print(vyska);
-      display.display();
+      u8g2.print(" V:"); 
+      u8g2.print(vyska);
+      u8g2.sendBuffer(); //Zobrazi displej
 
       break;
 
@@ -353,7 +350,7 @@ void loop ()
       display.print("Vys:"); 
       display.print(vyska);
       
-      display.display();
+      u8g2.sendBuffer(); //Zobrazi displej
       
       break;
 
@@ -362,7 +359,7 @@ void loop ()
       display.print("Tepl:"); 
       display.print(teplota);
       
-      display.display();
+      u8g2.sendBuffer(); //Zobrazi displej
       
       break;
 
@@ -371,7 +368,7 @@ void loop ()
       display.print("Tl:"); 
       display.print(tlak);
       
-      display.display();
+      u8g2.sendBuffer(); //Zobrazi displej
       
       break;
 
@@ -390,7 +387,7 @@ void loop ()
       display.print(datumCas.month());
       display.print('.');
       display.print(datumCas.year());
-      display.display();      
+      u8g2.sendBuffer(); //Zobrazi displej      
       
       break;
       

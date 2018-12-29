@@ -15,6 +15,7 @@
 
 
 // připojení knihoven
+#include "Voids.cpp"
 #include <Arduino.h>
 #include <SPI.h> //Seriova linka
 #include <Wire.h>
@@ -36,7 +37,7 @@ Adafruit_BMP085 bmp; //instance teplomeru
 const int  BTleft_pin = D3;    
 const int  BTright_pin = D4;
 
-
+float vyska_raw = 555;
 int vyska = 555;
 int vyska_max = -11000;
 int vyska_min  = 11000;
@@ -44,11 +45,13 @@ int vyska_last = 0;
 int vyska_up_all = 0;
 int vyska_down_all = 0;
 
+float teplota_raw = 55;
 int teplota = 55;
 int teplota_max = -55;
 int teplota_min  = 100;
 int teplota_last = 0;
 
+float tlak_raw = 100000;
 int tlak = 1000;
 int tlak_max = 100;
 int tlak_min  = 10000;
@@ -116,7 +119,7 @@ void setup ()
 
   //OLED/////////////////////
   u8g2.begin();
-  
+  /*
   u8g2.clearBuffer(); //Smaze displej
   u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
   u8g2.drawStr(0,10,"Meteostanice");  //Vypise na displej
@@ -125,11 +128,16 @@ void setup ()
   u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
   u8g2.drawStr(22,36,"V1.0");  //Vypise na displej
   u8g2.sendBuffer();  //Zobrazi
-
+  */
   
   delay(2000);
 }
-
+ 
+void rastr ()
+{
+  u8g2.drawRFrame(0,0,64,48,5);
+  u8g2.drawRFrame(12,0,40,14,3);
+}
 
 
 void loop ()
@@ -137,14 +145,28 @@ void loop ()
   u8g2.clearBuffer();	//Smaze displej
   u8g2.setFont(u8g2_font_profont11_mf);	//Nastavi font
     
+ 
+  
+  rastr();
+
+  u8g2.sendBuffer(); //Zobrazi displej
+  delay(500);
+  /*
   DateTime datumCas = DS1307.now(); //Nacteni casu
 
-  vyska=bmp.readAltitude();
-  teplota=bmp.readTemperature();
-  tlak=(bmp.readPressure()/100);
+  //Nastaveni promenych hodnotami z teplomeru
+  vyska_raw=bmp.readAltitude();
+  teplota_raw=bmp.readTemperature();
+  tlak_raw=bmp.readPressure();
+
+  //Kalibrace//////////////
+  vyska = vyska_raw + 120;
+  teplota = teplota_raw - 4;
+  tlak = (tlak_raw/100) + 50;
+
   
   //Vyska//////////////////
-  if(DB)
+  if(!DB)
   {
     Serial.print("Vyska ");
     Serial.println(vyska);
@@ -230,10 +252,10 @@ void loop ()
   }
   if(DB)
   {
+    Serial.print("Nahoru");
     Serial.println(vyska_up_all);
   }
-  Serial.print("Nahoru");
-  Serial.println(vyska_up_all);
+  
 
   //Nachozene metry dolu
   if ((vyska-2)<vyska_last)
@@ -244,11 +266,9 @@ void loop ()
   }
   if(DB)
   {
+    Serial.print("Dolu");
     Serial.println(vyska_down_all);
   }
-  Serial.print("Dolu");
-  Serial.println(vyska_down_all);
-
   
   
   
@@ -399,6 +419,6 @@ void loop ()
 
 
 
-
+*/
   //delay(3000);
 }

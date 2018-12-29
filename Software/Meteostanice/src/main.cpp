@@ -117,10 +117,14 @@ void setup ()
   //OLED/////////////////////
   u8g2.begin();
   
-  u8g2.clearBuffer();					// clear the internal memory
-  u8g2.setFont(u8g2_font_crox2cb_tf );	// choose a suitable font
-  u8g2.drawStr(0,10,"Meteostanice!");	// write something to the internal memory
-  u8g2.sendBuffer();					// transfer internal memory to the display
+  u8g2.clearBuffer(); //Smaze displej
+  u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
+  u8g2.drawStr(0,10,"Meteostanice");  //Vypise na displej
+  u8g2.setFont(u8g2_font_profont12_mf );	// Nastavi 
+  u8g2.drawStr(10,23,"OD KUBY"); //Vypise na displej
+  u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
+  u8g2.drawStr(22,36,"V1.0");  //Vypise na displej
+  u8g2.sendBuffer();  //Zobrazi
 
   
   delay(2000);
@@ -131,7 +135,7 @@ void setup ()
 void loop ()
 {
   u8g2.clearBuffer();	//Smaze displej
-  u8g2.setFont(u8g2_font_ncenB08_tr);	//Nastavi font
+  u8g2.setFont(u8g2_font_profont11_mf);	//Nastavi font
     
   DateTime datumCas = DS1307.now(); //Nacteni casu
 
@@ -218,7 +222,7 @@ void loop ()
   }
 
   //Nachozene metry nahory
-  if (vyska>vyska_last)
+  if ((vyska+2)>vyska_last)
   {
     vyska_up_all+=(vyska-vyska_last);
     vyska_last=vyska;
@@ -228,9 +232,11 @@ void loop ()
   {
     Serial.println(vyska_up_all);
   }
-  
+  Serial.print("Nahoru");
+  Serial.println(vyska_up_all);
+
   //Nachozene metry dolu
-  if (vyska<vyska_last)
+  if ((vyska-2)<vyska_last)
   {
     vyska_down_all+=(vyska_last-vyska);
     vyska_last=vyska;
@@ -240,6 +246,8 @@ void loop ()
   {
     Serial.println(vyska_down_all);
   }
+  Serial.print("Dolu");
+  Serial.println(vyska_down_all);
 
   
   
@@ -251,10 +259,6 @@ void loop ()
   {
     if (BTleft_state == HIGH) 
     {
-      // Zde se projevi zmena
-      BTleft_counter++;
-      Serial.print("Left");
-      Serial.println(BTleft_counter);
       switch(zobrazeni)
       {
         case HOME:
@@ -289,10 +293,6 @@ void loop ()
   {
     if (BTright_state == HIGH) 
     {
-      // Zde se projevi zmena
-      BTright_counter++;
-      Serial.print("Right");
-      Serial.println(BTright_counter);
       switch(zobrazeni)
       {
         case HOME:
@@ -326,7 +326,7 @@ void loop ()
   {
     case HOME:
       //Vypis casu
-      u8g2.setCursor(0, 12); 
+      u8g2.setCursor(0, 11); 
       u8g2.print(datumCas.hour());
       u8g2.print(':');
       u8g2.print(datumCas.minute());
@@ -334,7 +334,7 @@ void loop ()
       u8g2.print(datumCas.second());
     
       //Vypis teploty a vysky
-      u8g2.setCursor(0, 25);  // (x,y)
+      u8g2.setCursor(0, 21);  // (x,y)
       u8g2.print("T:"); 
       u8g2.print(teplota);
     
@@ -346,47 +346,47 @@ void loop ()
 
 
      case VYSKA:
-      display.setCursor(32, 8);  // (x,y) 
-      display.print("Vys:"); 
-      display.print(vyska);
+      u8g2.setCursor(0, 11);  // (x,y) 
+      u8g2.print("Vys:"); 
+      u8g2.print(vyska);
       
       u8g2.sendBuffer(); //Zobrazi displej
       
       break;
 
      case TEPLOTA:
-      display.setCursor(32, 8);  // (x,y) 
-      display.print("Tepl:"); 
-      display.print(teplota);
+      u8g2.setCursor(0, 11);  // (x,y) 
+      u8g2.print("Tepl:"); 
+      u8g2.print(teplota);
       
       u8g2.sendBuffer(); //Zobrazi displej
       
       break;
 
      case TLAK:
-      display.setCursor(32, 8);  // (x,y) 
-      display.print("Tl:"); 
-      display.print(tlak);
+      u8g2.setCursor(0, 11);  // (x,y) 
+      u8g2.print("Tl:"); 
+      u8g2.print(tlak);
       
       u8g2.sendBuffer(); //Zobrazi displej
       
       break;
 
     case CAS:
-      display.setCursor(32, 8);  // (x,y)
+      u8g2.setCursor(0, 11);  // (x,y)
        
-      display.print(datumCas.hour());
-      display.print(':');
-      display.print(datumCas.minute());
-      display.print(':');
-      display.print(datumCas.second());
+      u8g2.print(datumCas.hour());
+      u8g2.print(':');
+      u8g2.print(datumCas.minute());
+      u8g2.print(':');
+      u8g2.print(datumCas.second());
     
-      display.setCursor(32, 17);  // (x,y)
-      display.print(datumCas.day());
-      display.print('.');
-      display.print(datumCas.month());
-      display.print('.');
-      display.print(datumCas.year());
+      u8g2.setCursor(0, 21);  // (x,y)
+      u8g2.print(datumCas.day());
+      u8g2.print('.');
+      u8g2.print(datumCas.month());
+      u8g2.print('.');
+      u8g2.print(datumCas.year());
       u8g2.sendBuffer(); //Zobrazi displej      
       
       break;

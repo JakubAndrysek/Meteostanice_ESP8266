@@ -131,9 +131,7 @@ void setup ()
 
     void loop ()
 {
-   ///////////////////////////
-  //Kontrola VZHURU / SPIM///
-  ///////////////////////////
+
   
   
     if (wake==true)

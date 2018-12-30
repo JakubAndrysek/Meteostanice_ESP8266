@@ -113,14 +113,14 @@ void setup ()
   
   u8g2.clearBuffer(); //Smaze displej
   u8g2.drawRFrame(0,0,64,48,5);
-  u8g2.setFont(u8g2_font_profont12_mf );	// Nastavi 
+  u8g2.setFont(u8g2_font_profont12_mf );	// Nastavi fontu
   u8g2.drawStr(10,23,"OD KUBY"); //Vypise na displej
-  u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
+  u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi fontu
   u8g2.drawStr(22,36,"V1.1");  //Vypise na displej
   u8g2.sendBuffer();  //Zobrazi
   
   
-  delay(2000);
+  delay(100);
 }
 
 void loop()
@@ -133,6 +133,7 @@ void loop()
   if (wake==true)
   {
     u8g2.clearBuffer();	//Smaze displej
+    u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi fontu
     DateTime datumCas = DS1307.now(); //Nacteni casu
     //Nastaveni promenych hodnotami z teplomeru
     vyska_raw=bmp.readAltitude();
@@ -141,7 +142,7 @@ void loop()
 
     //Rastr////////////////
     u8g2.drawRFrame(0,0,64,48,5);
-    u8g2.drawRFrame(12,0,40,14,3);
+    u8g2.drawRFrame(12,0,40,12,3);
 
     //Kalibrace///////////
     vyska = vyska_raw + 120;
@@ -327,7 +328,9 @@ void loop()
     {
     case HOME:
         //Vypis casu
-        u8g2.setCursor(0, 11); 
+        u8g2.drawStr(21,9,"HOME");  //Vypise na displej 
+
+        u8g2.setCursor(3, 20); 
         u8g2.print(datumCas.hour());
         u8g2.print(':');
         u8g2.print(datumCas.minute());
@@ -335,7 +338,7 @@ void loop()
         u8g2.print(datumCas.second());
     
         //Vypis teploty a vysky
-        u8g2.setCursor(0, 21);  // (x,y)
+        u8g2.setCursor(3, 29);  // (x,y)
         u8g2.print("T:"); 
         u8g2.print(teplota);
     
@@ -347,37 +350,44 @@ void loop()
 
 
     case VYSKA:
-        u8g2.setCursor(0, 11);  // (x,y) 
+        u8g2.drawStr(19,9,"Vyska");  //Vypise na displej 
+
+        u8g2.setCursor(3, 20);  // (x,y) 
         u8g2.print("Vys:"); 
         u8g2.print(vyska);
+        u8g2.print(" m");
         
         u8g2.sendBuffer(); //Zobrazi displej
         
         break;
 
     case TEPLOTA:
-        u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
-        u8g2.drawStr(14,10,"Teplota");  //Vypise na displej  
+        u8g2.drawStr(14,9,"Teplota");  //Vypise na displej  
 
-        u8g2.setCursor(0, 20);  // (x,y) 
+        u8g2.setCursor(3, 20);  // (x,y) 
         u8g2.print("Tepl:"); 
         u8g2.print(teplota);
-        
+        u8g2.print(" C");
+
         u8g2.sendBuffer(); //Zobrazi displej
         
         break;
 
     case TLAK:
-        u8g2.setCursor(0, 11);  // (x,y) 
+        u8g2.drawStr(23,9,"Tlak");  //Vypise na displej 
+        u8g2.setCursor(3, 20);  // (x,y) 
         u8g2.print("Tl:"); 
         u8g2.print(tlak);
-        
+        u8g2.print(" kPa");
+
         u8g2.sendBuffer(); //Zobrazi displej
         
         break;
 
     case CAS:
-        u8g2.setCursor(0, 11);  // (x,y)
+        u8g2.drawStr(25,9,"Cas");  //Vypise na displej 
+
+        u8g2.setCursor(3, 20);  // (x,y)
         
         u8g2.print(datumCas.hour());
         u8g2.print(':');
@@ -385,7 +395,7 @@ void loop()
         u8g2.print(':');
         u8g2.print(datumCas.second());
     
-        u8g2.setCursor(0, 21);  // (x,y)
+        u8g2.setCursor(3, 29);  // (x,y)
         u8g2.print(datumCas.day());
         u8g2.print('.');
         u8g2.print(datumCas.month());

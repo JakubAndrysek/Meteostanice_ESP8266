@@ -57,7 +57,7 @@ int BTright_state = 0;         // current state of the button
 int BTright_last_state = 0;     // previous state of the button
 
 
-
+bool wake = true;
 bool DB = false;
 
 //Enumy////////////////
@@ -73,13 +73,6 @@ enum tZobrazeni
 tZobrazeni zobrazeni = HOME;
 
 
-enum tStav
-{
-  VZHURU,
-  SPIM
-};
-
-tStav stav = VZHURU;
 
 void setup () 
 {
@@ -135,288 +128,291 @@ void setup ()
 
 
 
-void loop ()
+
+    void loop ()
 {
    ///////////////////////////
   //Kontrola VZHURU / SPIM///
   ///////////////////////////
   
   
-  switch (stav)
-  {
-    case VZHURU:
-      
-      u8g2.clearBuffer();	//Smaze displej
-      DateTime datumCas = DS1307.now(); //Nacteni casu
-      //Nastaveni promenych hodnotami z teplomeru
-      vyska_raw=bmp.readAltitude();
-      teplota_raw=bmp.readTemperature();
-      tlak_raw=bmp.readPressure();
+    if (wake==true)
+  {   
+    u8g2.clearBuffer();	//Smaze displej
+    DateTime datumCas = DS1307.now(); //Nacteni casu
+    //Nastaveni promenych hodnotami z teplomeru
+    vyska_raw=bmp.readAltitude();
+    teplota_raw=bmp.readTemperature();
+    tlak_raw=bmp.readPressure();
 
-      //Rastr////////////////
-      u8g2.drawRFrame(0,0,64,48,5);
-      u8g2.drawRFrame(12,0,40,14,3);
+    //Rastr////////////////
+    u8g2.drawRFrame(0,0,64,48,5);
+    u8g2.drawRFrame(12,0,40,14,3);
 
-      //Kalibrace///////////
-      vyska = vyska_raw + 120;
-      teplota = teplota_raw - 4;
-      tlak = (tlak_raw/100) + 50;
+    //Kalibrace///////////
+    vyska = vyska_raw + 120;
+    teplota = teplota_raw - 4;
+    tlak = (tlak_raw/100) + 50;
 
 
-      //Vyska//////////////////
-      if(!DB)
-      {
-          Serial.print("Vyska ");
-          Serial.println(vyska);
-      }
+    //Vyska//////////////////
+    if(!DB)
+    {
+        Serial.print("Vyska ");
+        Serial.println(vyska);
+    }
 
-      if (vyska>vyska_max)
-      {
-          vyska_max=vyska;
-          if(DB)
-          {  
-          Serial.print("V-Max ");
-          Serial.println(vyska_max);
-          }
-      }
-      else if (vyska<vyska_min)
-      {
-          vyska_min=vyska;
-          if(DB)
-          {  
-          Serial.print("V-Min ");
-          Serial.println(vyska_min);
-          }
-      }
-
-
-      //Teplota/////////////////
-      if(DB)
-      {
-          Serial.print("Teplota ");
-          Serial.println(teplota);  
-      }
-      if (vyska>teplota_max)
-      {
-          teplota_max=teplota;
-          if(DB)
-          {
-          Serial.print("T-Max ");
-          Serial.println(teplota_max);
-          }
-      }
-      else if (teplota<teplota_min)
-      {
-          teplota_min=teplota;
-          if(DB)
-          {
-          Serial.print("T-Min ");
-          Serial.println(teplota_min);
-          }  
-      }
+    if (vyska>vyska_max)
+    {
+        vyska_max=vyska;
+        if(DB)
+        {  
+        Serial.print("V-Max ");
+        Serial.println(vyska_max);
+        }
+    }
+    else if (vyska<vyska_min)
+    {
+        vyska_min=vyska;
+        if(DB)
+        {  
+        Serial.print("V-Min ");
+        Serial.println(vyska_min);
+        }
+    }
 
 
-      //Tlak//////////////////
-      if(DB)
-      {
-          Serial.print("Tlak ");
-          Serial.println(tlak);  
-      }
-      if (tlak>tlak_max)
-      {
-          tlak_max=tlak;
-          if(DB)
-          {
-          Serial.print("P-Max ");
-          Serial.println(tlak_max);
-          }
-      }
-      else if (tlak<tlak_min)
-      {
-          tlak_min=tlak;
-          if(DB)
-          {
-          Serial.print("P-Min ");
-          Serial.println(tlak_min);
-          }   
-      }
+    //Teplota/////////////////
+    if(DB)
+    {
+        Serial.print("Teplota ");
+        Serial.println(teplota);  
+    }
+    if (vyska>teplota_max)
+    {
+        teplota_max=teplota;
+        if(DB)
+        {
+        Serial.print("T-Max ");
+        Serial.println(teplota_max);
+        }
+    }
+    else if (teplota<teplota_min)
+    {
+        teplota_min=teplota;
+        if(DB)
+        {
+        Serial.print("T-Min ");
+        Serial.println(teplota_min);
+        }  
+    }
 
 
-      //Nachozene metry nahory
-      if ((vyska+2)>vyska_last)
-      {
-          vyska_up_all+=(vyska-vyska_last);
-          vyska_last=vyska;
-          
-      }
-      if(DB)
-      {
-          Serial.print("Nahoru");
-          Serial.println(vyska_up_all);
-      }
+    //Tlak//////////////////
+    if(DB)
+    {
+        Serial.print("Tlak ");
+        Serial.println(tlak);  
+    }
+    if (tlak>tlak_max)
+    {
+        tlak_max=tlak;
+        if(DB)
+        {
+        Serial.print("P-Max ");
+        Serial.println(tlak_max);
+        }
+    }
+    else if (tlak<tlak_min)
+    {
+        tlak_min=tlak;
+        if(DB)
+        {
+        Serial.print("P-Min ");
+        Serial.println(tlak_min);
+        }   
+    }
 
 
-      //Nachozene metry dolu
-      if ((vyska-2)<vyska_last)
-      {
-          vyska_down_all+=(vyska_last-vyska);
-          vyska_last=vyska;
-          
-      }
-      if(DB)
-      {
-          Serial.print("Dolu");
-          Serial.println(vyska_down_all);
-      }
-
-
-
-      //Leve tlacitko zmacknuto////////////////
-      BTleft_state = digitalRead(BTleft_pin);
-      if (BTleft_state != BTleft_last_state) 
-      {
-          if (BTleft_state == HIGH) 
-          {
-          switch(zobrazeni)
-          {
-              case HOME:
-              zobrazeni=CAS;
-              break;
-              
-              case VYSKA:
-              zobrazeni=HOME;
-              break;
-
-              case TEPLOTA:
-              zobrazeni=VYSKA;
-              break;
-              
-              case TLAK:
-              zobrazeni=TEPLOTA;
-              break;
-              
-              case CAS:
-              zobrazeni=TLAK;
-              break;
-          }
-          } 
-      }  
-      BTleft_last_state = BTleft_state;
-
-
-
-      //Prave tlacitko zmacknuto/////////////////
-      BTright_state = digitalRead(BTright_pin);
-      if (BTright_state != BTright_last_state) 
-      {
-          if (BTright_state == HIGH) 
-          {
-          switch(zobrazeni)
-          {
-              case HOME:
-              zobrazeni=VYSKA;
-              break;
-              
-              case VYSKA:
-              zobrazeni=TEPLOTA;
-              break;
-
-              case TEPLOTA:
-              zobrazeni=TLAK;
-              break;
-              
-              case TLAK:
-              zobrazeni=CAS;
-              break;
-              
-              case CAS:
-              zobrazeni=HOME;
-              break;
-          }
-          } 
-      }  
-      BTright_last_state = BTright_state;
-
-      
-      
-      switch(zobrazeni)
-      {
-        case HOME:
-          //Vypis casu
-          u8g2.setCursor(0, 11); 
-          u8g2.print(datumCas.hour());
-          u8g2.print(':');
-          u8g2.print(datumCas.minute());
-          u8g2.print(':');
-          u8g2.print(datumCas.second());
+    //Nachozene metry nahory
+    if ((vyska+2)>vyska_last)
+    {
+        vyska_up_all+=(vyska-vyska_last);
+        vyska_last=vyska;
         
-          //Vypis teploty a vysky
-          u8g2.setCursor(0, 21);  // (x,y)
-          u8g2.print("T:"); 
-          u8g2.print(teplota);
+    }
+    if(DB)
+    {
+        Serial.print("Nahoru");
+        Serial.println(vyska_up_all);
+    }
+
+
+    //Nachozene metry dolu
+    if ((vyska-2)<vyska_last)
+    {
+        vyska_down_all+=(vyska_last-vyska);
+        vyska_last=vyska;
         
-          u8g2.print(" V:"); 
-          u8g2.print(vyska);
-          u8g2.sendBuffer(); //Zobrazi displej
+    }
+    if(DB)
+    {
+        Serial.print("Dolu");
+        Serial.println(vyska_down_all);
+    }
 
-          break;
 
 
-        case VYSKA:
-          u8g2.setCursor(0, 11);  // (x,y) 
-          u8g2.print("Vys:"); 
-          u8g2.print(vyska);
-          
-          u8g2.sendBuffer(); //Zobrazi displej
-          
-          break;
+    //Leve tlacitko zmacknuto////////////////
+    BTleft_state = digitalRead(BTleft_pin);
+    if (BTleft_state != BTleft_last_state) 
+    {
+        if (BTleft_state == HIGH) 
+        {
+        switch(zobrazeni)
+        {
+            case HOME:
+            zobrazeni=CAS;
+            break;
+            
+            case VYSKA:
+            zobrazeni=HOME;
+            break;
 
-        case TEPLOTA:
-          u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
-          u8g2.drawStr(14,10,"Teplota");  //Vypise na displej  
+            case TEPLOTA:
+            zobrazeni=VYSKA;
+            break;
+            
+            case TLAK:
+            zobrazeni=TEPLOTA;
+            break;
+            
+            case CAS:
+            zobrazeni=TLAK;
+            break;
+        }
+        } 
+    }  
+    BTleft_last_state = BTleft_state;
 
-          u8g2.setCursor(0, 20);  // (x,y) 
-          u8g2.print("Tepl:"); 
-          u8g2.print(teplota);
-          
-          u8g2.sendBuffer(); //Zobrazi displej
-          
-          break;
 
-        case TLAK:
-          u8g2.setCursor(0, 11);  // (x,y) 
-          u8g2.print("Tl:"); 
-          u8g2.print(tlak);
-          
-          u8g2.sendBuffer(); //Zobrazi displej
-          
-          break;
 
-        case CAS:
-          u8g2.setCursor(0, 11);  // (x,y)
-          
-          u8g2.print(datumCas.hour());
-          u8g2.print(':');
-          u8g2.print(datumCas.minute());
-          u8g2.print(':');
-          u8g2.print(datumCas.second());
+    //Prave tlacitko zmacknuto/////////////////
+    BTright_state = digitalRead(BTright_pin);
+    if (BTright_state != BTright_last_state) 
+    {
+        if (BTright_state == HIGH) 
+        {
+        switch(zobrazeni)
+        {
+            case HOME:
+            zobrazeni=VYSKA;
+            break;
+            
+            case VYSKA:
+            zobrazeni=TEPLOTA;
+            break;
+
+            case TEPLOTA:
+            zobrazeni=TLAK;
+            break;
+            
+            case TLAK:
+            zobrazeni=CAS;
+            break;
+            
+            case CAS:
+            zobrazeni=HOME;
+            break;
+        }
+        } 
+    }  
+    BTright_last_state = BTright_state;
+
+    
+    
+    switch(zobrazeni)
+    {
+    case HOME:
+        //Vypis casu
+        u8g2.setCursor(0, 11); 
+        u8g2.print(datumCas.hour());
+        u8g2.print(':');
+        u8g2.print(datumCas.minute());
+        u8g2.print(':');
+        u8g2.print(datumCas.second());
+    
+        //Vypis teploty a vysky
+        u8g2.setCursor(0, 21);  // (x,y)
+        u8g2.print("T:"); 
+        u8g2.print(teplota);
+    
+        u8g2.print(" V:"); 
+        u8g2.print(vyska);
+        u8g2.sendBuffer(); //Zobrazi displej
+
+        break;
+
+
+    case VYSKA:
+        u8g2.setCursor(0, 11);  // (x,y) 
+        u8g2.print("Vys:"); 
+        u8g2.print(vyska);
         
-          u8g2.setCursor(0, 21);  // (x,y)
-          u8g2.print(datumCas.day());
-          u8g2.print('.');
-          u8g2.print(datumCas.month());
-          u8g2.print('.');
-          u8g2.print(datumCas.year());
-          u8g2.sendBuffer(); //Zobrazi displej      
-          
-          break;
-          
-      }
+        u8g2.sendBuffer(); //Zobrazi displej
+        
+        break;
 
+    case TEPLOTA:
+        u8g2.setFont(u8g2_font_profont10_mf );	// Nastavi 
+        u8g2.drawStr(14,10,"Teplota");  //Vypise na displej  
 
-    case SPIM:
-      Serial.println("Spim");
-  }
+        u8g2.setCursor(0, 20);  // (x,y) 
+        u8g2.print("Tepl:"); 
+        u8g2.print(teplota);
+        
+        u8g2.sendBuffer(); //Zobrazi displej
+        
+        break;
+
+    case TLAK:
+        u8g2.setCursor(0, 11);  // (x,y) 
+        u8g2.print("Tl:"); 
+        u8g2.print(tlak);
+        
+        u8g2.sendBuffer(); //Zobrazi displej
+        
+        break;
+
+    case CAS:
+        u8g2.setCursor(0, 11);  // (x,y)
+        
+        u8g2.print(datumCas.hour());
+        u8g2.print(':');
+        u8g2.print(datumCas.minute());
+        u8g2.print(':');
+        u8g2.print(datumCas.second());
+    
+        u8g2.setCursor(0, 21);  // (x,y)
+        u8g2.print(datumCas.day());
+        u8g2.print('.');
+        u8g2.print(datumCas.month());
+        u8g2.print('.');
+        u8g2.print(datumCas.year());
+        u8g2.sendBuffer(); //Zobrazi displej      
+        
+        break;
+          
+      
+
+}
+    else
+    {
+        Serial.println("Spim");
+    }
+
+      
+  
 
 
 

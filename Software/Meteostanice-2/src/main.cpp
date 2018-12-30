@@ -166,7 +166,7 @@ void loop()
         Serial.println(vyska_max);
         }
     }
-    else if (vyska<vyska_min)
+    if (vyska<vyska_min)
     {
         vyska_min=vyska;
         if(DB)
@@ -183,7 +183,7 @@ void loop()
         Serial.print("Teplota ");
         Serial.println(teplota);  
     }
-    if (vyska>teplota_max)
+    if (teplota>teplota_max)
     {
         teplota_max=teplota;
         if(DB)
@@ -192,7 +192,7 @@ void loop()
         Serial.println(teplota_max);
         }
     }
-    else if (teplota<teplota_min)
+    if (teplota<teplota_min)
     {
         teplota_min=teplota;
         if(DB)
@@ -218,7 +218,7 @@ void loop()
         Serial.println(tlak_max);
         }
     }
-    else if (tlak<tlak_min)
+    if (tlak<tlak_min)
     {
         tlak_min=tlak;
         if(DB)
@@ -338,7 +338,7 @@ void loop()
         u8g2.print(datumCas.second());
     
         //Vypis teploty a vysky
-        u8g2.setCursor(3, 29);  // (x,y)
+        u8g2.setCursor(3, 28);  // (x,y)
         u8g2.print("T:"); 
         u8g2.print(teplota);
     
@@ -353,8 +353,18 @@ void loop()
         u8g2.drawStr(19,9,"Vyska");  //Vypise na displej 
 
         u8g2.setCursor(3, 20);  // (x,y) 
-        u8g2.print("Vys:"); 
+        u8g2.print("Now:"); 
         u8g2.print(vyska);
+        u8g2.print(" m");
+
+        u8g2.setCursor(3, 28);  // (x,y) 
+        u8g2.print("Min:"); 
+        u8g2.print(vyska_min);
+        u8g2.print(" m");
+
+        u8g2.setCursor(3, 36);  // (x,y) 
+        u8g2.print("Max:"); 
+        u8g2.print(vyska_max);
         u8g2.print(" m");
         
         u8g2.sendBuffer(); //Zobrazi displej
@@ -365,9 +375,20 @@ void loop()
         u8g2.drawStr(14,9,"Teplota");  //Vypise na displej  
 
         u8g2.setCursor(3, 20);  // (x,y) 
-        u8g2.print("Tepl:"); 
+        u8g2.print("Now:"); 
         u8g2.print(teplota);
         u8g2.print(" C");
+
+        u8g2.setCursor(3, 28);  // (x,y) 
+        u8g2.print("Min:"); 
+        u8g2.print(teplota_min);
+        u8g2.print(" C");
+
+        u8g2.setCursor(3, 36);  // (x,y) 
+        u8g2.print("Max:"); 
+        u8g2.print(teplota_max);
+        u8g2.print(" C");
+
 
         u8g2.sendBuffer(); //Zobrazi displej
         
@@ -376,9 +397,20 @@ void loop()
     case TLAK:
         u8g2.drawStr(23,9,"Tlak");  //Vypise na displej 
         u8g2.setCursor(3, 20);  // (x,y) 
-        u8g2.print("Tl:"); 
+        u8g2.print("Now:"); 
         u8g2.print(tlak);
         u8g2.print(" kPa");
+
+        u8g2.setCursor(3, 28);  // (x,y) 
+        u8g2.print("Min:"); 
+        u8g2.print(tlak_min);
+        u8g2.print(" kPa");
+
+        u8g2.setCursor(3, 36);  // (x,y) 
+        u8g2.print("Max:"); 
+        u8g2.print(tlak_max);
+        u8g2.print(" kPa");
+
 
         u8g2.sendBuffer(); //Zobrazi displej
         
@@ -395,7 +427,7 @@ void loop()
         u8g2.print(':');
         u8g2.print(datumCas.second());
     
-        u8g2.setCursor(3, 29);  // (x,y)
+        u8g2.setCursor(3, 28);  // (x,y)
         u8g2.print(datumCas.day());
         u8g2.print('.');
         u8g2.print(datumCas.month());

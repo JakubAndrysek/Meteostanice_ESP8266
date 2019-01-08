@@ -65,6 +65,7 @@ enum tZobrazeni
 {
   HOME,
   VYSKA,
+  USLO,
   TEPLOTA,
   TLAK,
   CAS
@@ -105,7 +106,7 @@ void setup ()
   {
     Serial.println("Could not find BMP180 or BMP085 sensor at 0x77");
   }
-  vyska_last=bmp.readAltitude();
+  vyska_last=(bmp.readAltitude()+120);
 
 
   //OLED/////////////////////
@@ -145,7 +146,7 @@ void loop()
     u8g2.drawRFrame(12,0,40,12,3);
 
     //Kalibrace///////////
-    vyska = vyska_raw + 120;
+    vyska = vyska_raw + 120; //Nutno zmenit i nahore
     teplota = teplota_raw - 4;
     tlak = (tlak_raw/100) + 50;
 
@@ -274,8 +275,12 @@ void loop()
             zobrazeni=HOME;
             break;
 
-            case TEPLOTA:
+            case USLO:
             zobrazeni=VYSKA;
+            break;
+
+            case TEPLOTA:
+            zobrazeni=USLO;
             break;
             
             case TLAK:
@@ -305,6 +310,10 @@ void loop()
             break;
             
             case VYSKA:
+            zobrazeni=USLO;
+            break;
+
+            case USLO:
             zobrazeni=TEPLOTA;
             break;
 
@@ -369,6 +378,23 @@ void loop()
         
         u8g2.sendBuffer(); //Zobrazi displej
         
+        break;
+
+    case USLO:
+        u8g2.drawStr(21,9,"Uslo");  //Vypise na displej
+        
+        u8g2.setCursor(3, 20);  // (x,y) 
+        u8g2.print("Nahoru:"); 
+        u8g2.print(vyska_up_all);
+        u8g2.print(" m");
+
+        u8g2.setCursor(3, 28);  // (x,y) 
+        u8g2.print("Dolu:"); 
+        u8g2.print(vyska_down_all);
+        u8g2.print(" m");
+
+        u8g2.sendBuffer(); //Zobrazi displej 
+
         break;
 
     case TEPLOTA:
